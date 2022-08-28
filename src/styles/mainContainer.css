@@ -1,0 +1,12 @@
+main.container {
+    width: 80vw;
+    display: flex;
+    flex-flow: column nowrap;
+    margin: 0 auto;
+}
+
+h4.heading {
+    text-align: left;
+    color: #091E42;
+    font-weight: 600;
+}

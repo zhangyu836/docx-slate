@@ -1,0 +1,28 @@
+.editor-container {
+    width: 80vw;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.rich-editor {
+    width: 90%;
+}
+
+.tags {
+    width: 10%;
+
+}
+
+.tag {
+    border-radius: 2px;
+    opacity: 0.9;
+    color: white;
+    font-size: 0.9em;
+    padding: 0.1em;
+}
+
+.tag-highlight {
+    opacity: 0.8;
+    font-weight: 600;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 4px 12px;
+}
