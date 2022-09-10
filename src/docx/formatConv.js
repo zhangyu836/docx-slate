@@ -1,6 +1,8 @@
-import {IndentSpacingConv, AlignmentConv, BorderConv} from './converters';
+import {IndentSpacingConv, LineSpacingConv, AlignmentConv,
+    BorderConv, ShdConv} from './converters';
 
-let convertors = [IndentSpacingConv, AlignmentConv, BorderConv]
+let convertors = [IndentSpacingConv, LineSpacingConv, AlignmentConv,
+    BorderConv, ShdConv]
 class FormatConv {
     constructor(format, style) {
         this.styleId = style.style_id;

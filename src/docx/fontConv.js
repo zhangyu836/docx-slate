@@ -1,13 +1,14 @@
 import {Pt} from '@zhangyu836/docxjs/dist/es5/index';
 import {RGBColor} from '@zhangyu836/docxjs/dist/es5/shared';
 import {WD_COLOR} from '@zhangyu836/docxjs/dist/es5/enum/text';
+import {FontBorderConv} from './converters';
 
 let boolPrs = ['bold', 'italic', 'all_caps', 'small_caps',
     'strike', 'subscript', 'superscript', 'outline'];//, 'rtl'
 
 class FontConv {
-    constructor(rpr, style) {
-        this.conv = FontConv.fromFont(rpr);
+    constructor(font, style) {
+        this.conv = FontConv.fromFont(font);
         this.styleId = style.style_id;
         this.name = style.name;
         if (style.base_style)
@@ -36,6 +37,7 @@ class FontConv {
             conv.underline = font.underline;
         if(font.name)
             conv.name = font.name;
+        FontBorderConv.from(font, conv);
         return conv;
     }
     merge(base){
@@ -85,6 +87,12 @@ class FontConv {
         //if (conv.rtl) {
         //    obj.direction = 'rtl';
         //}
+        if(conv.all_caps) {
+            obj.textTransform = 'uppercase';
+        }
+        if(conv.small_caps) {
+            obj.textTransform = 'uppercase';//'capitalize';
+        }
         if (conv.outline) {
             obj.outline = 'auto';
         }
@@ -100,6 +108,7 @@ class FontConv {
         if(conv.name) {
             obj.fontFamily = conv.name;
         }
+        FontBorderConv.toStyleObj(conv, obj);
         return obj;
     }
 }

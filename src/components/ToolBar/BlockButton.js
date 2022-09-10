@@ -59,14 +59,17 @@ export const isBlockActive = (editor, format, blockType = 'type') => {
 	const [match] = Array.from(
 		Editor.nodes(editor, {
 			at: Editor.unhangRange(editor, selection),
-			match: (n) =>
-				!Editor.isEditor(n) &&
-				SlateElement.isElement(n) &&
-				n[blockType] === format,
+			match: (n) => {
+				if(!Editor.isEditor(n))
+					if(SlateElement.isElement(n)){
+						let type = n[blockType];
+						if(blockType==='type')
+							 type = editor.typeConv(type);
+						return type === format;
+					}
+			}
 		})
 	);
-
-	// return bool
 	return !!match;
 };
 

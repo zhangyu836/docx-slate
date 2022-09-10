@@ -1,41 +1,46 @@
 import {Document} from '@zhangyu836/docxjs/dist/es5/index';
-import {getStyleMap} from './/stylemap';
+import {docxContext} from "./docxContext";
 import {toEditorData, saveDocx} from './dataTransform';
 
 const withDocx = (editor) => {
-    editor.getCssClass = (id) => {
-        return editor.styleMap.getCssClass(id);
+    editor.getCssClass = (name) => {
+        return docxContext.getCssClass(name);
     };
-    editor.getStyleName = (id) => {
-        return editor.styleMap.id2name.get(id);
+    editor.getFont = (name) => {
+        return docxContext.getFont(name);
     };
-    editor.getFont = (id) => {
-        let parFont = editor.styleMap.getFont(id);
-        return parFont || {};
-    };
-    editor.loadDefaultDocx = () => {
-        let docx = new Document();
-        editor.styleMap = getStyleMap(docx);
-        editor.elementTypes = editor.styleMap.elementTypes;
-        editor.docx = docx;
-    };
-    editor.loadDocx = (docx) => {
-        editor.styleMap = getStyleMap(docx);
-        editor.elementTypes = editor.styleMap.elementTypes;
-        editor.docx = docx;
-        let data = toEditorData(docx, editor.styleMap);
+    editor.getGlobalStyleObj = (className) => {
+        return docxContext.getGlobalStyleObj(className);
+    }
+    editor.getElementTypes = () => {
+        return docxContext.elementTypes;
+    }
+    editor.loadDocx = (buffer) => {
+        let docx;
+        try{
+            docx = new Document(Buffer.from(buffer));
+        } catch (e){
+            alert(e);
+            return;
+        }
+        console.log('docx file', docx);
+        docxContext.loadDocx(docx);
+        let data = toEditorData(docxContext);
         console.log(data);
-        if(data.length==0) {
+        if(data.length===0) {
             alert("no paragraphs found");
             return;
         }
         editor.children = data;
         editor.onChange();
+
     };
     editor.saveDocx = () => {
-        return saveDocx(editor);
+        return saveDocx(docxContext, editor.children);
     }
-    editor.loadDefaultDocx();
+    editor.typeConv = (type) => {
+        return docxContext.typeConv(type);
+    }
     return editor;
 };
 

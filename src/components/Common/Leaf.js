@@ -7,7 +7,8 @@ const Leaf = ({ attributes, children, leaf }) => {
 	let parent = children.props.parent;
 	if(parent){
 		let editor = useSlate();
-		let parFont = editor.getFont(parent.type);
+		let type = editor.typeConv(parent.type);
+		let parFont = editor.getFont(type);
 		font = Object.assign({}, parFont, leaf);
 	}
 	if(font.strike) {
@@ -21,7 +22,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 	}
 	let style = FontConv.toStyleObj(font);
 	if(Object.keys(style).length>0){
-		children = <span style={style}>{children}</span>;
+		return <span style={style} {...attributes}>{children}</span>;
 	}
 	return <span {...attributes}>{children}</span>;
 };

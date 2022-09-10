@@ -4,15 +4,15 @@ import {Editor, Element as SlateElement} from "slate";
 
 export const Dropdown = () => {
     const editor = useSlate();
-    let {options, types} = editor.elementTypes;
+    let types = editor.getElementTypes();
     return (
         <select style={{ width: 170, height:33 }}
             value={activeBlockType(editor, types)}
             onChange={(e) => changeFormat(editor, e)}
         >
-            {options.map((item, index) => (
-                <option key={index} value={item.value}>
-                    {item.text}
+            {types.map((item, index) => (
+                <option key={index} value={item}>
+                    {item}
                 </option>
             ))}
         </select>

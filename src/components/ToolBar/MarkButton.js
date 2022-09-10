@@ -59,7 +59,8 @@ function getParMarks(editor){
 			}
 		);
 		if(match){
-			marks = editor.getFont(match[0].type);
+			let type = editor.typeConv(match[0].type);
+			marks = editor.getFont(type);
 			//console.log('match node', match, marks);
 		}
 	}

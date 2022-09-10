@@ -6,7 +6,7 @@ class AbstractNum {
     get counterName(){
         return this._counterName(this.id, this.level);
     }
-    content(){
+    get content(){
         let ret = this.lvlText.replace(/%\d*/g, s => {
             let lvl = parseInt(s.substring(1)) - 1;
             return `"counter(${this._counterName(this.id, lvl)}, ${this.numFmt})"`;
@@ -24,7 +24,7 @@ class AbstractNum {
             obj.counterReset = counter;
         }
         let before = {
-            content: this.content(),
+            content: this.content,
             counterIncrement: counter
         }
         if(this.numFmt==="bullet") before.fontFamily = "Symbol";
@@ -58,13 +58,21 @@ class NumberingMap {
     get(key){
         return this.map.get(key);
     }
-    get globalCounterReset(){
+    getCounterReset(curNumbering) {
+        let keys = [], counters = [];
+        if(curNumbering) {
+            keys = [...curNumbering.map.keys()];
+            counters = [...curNumbering.map.values()];
+        }
+        for(let [key,counter] of this.map.entries()){
+            if(!keys.includes(key)) counters.push(counter);
+        }
         let counterNames = [];
-        for (let value of this.map.values()){
+        for (let value of counters){
             if (value.level===0)
                 counterNames.push(value.counterName)
         }
-        return {"counterReset": counterNames.join(" ")}
+        return {"counterReset": counterNames.join(" ")};
     }
 }
 function loadNumbering(docx){

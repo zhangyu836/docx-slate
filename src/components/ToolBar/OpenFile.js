@@ -1,6 +1,5 @@
 import {useRef} from 'react';
 import { useSlate } from 'slate-react';
-import {Document} from '@zhangyu836/docxjs/dist/es5/index';
 
 const OpenFile = () => {
     const inputRef = useRef(null);
@@ -18,14 +17,7 @@ const OpenFile = () => {
         const reader = new FileReader();
         reader.readAsArrayBuffer(fileObj);
         reader.onload = function (){
-            let docx;
-            try{
-                docx = new Document(Buffer.from(this.result));
-            } catch (e){
-                alert(e);
-            }
-            console.log('docx file', docx);
-            editor.loadDocx(docx);
+            editor.loadDocx(this.result);
         }
         console.log(fileObj.name);
         // reset file input

@@ -1,35 +1,35 @@
 import {FontConv} from './fontConv'
 import {FormatConv} from './formatConv';
 
-function toEditorData(docx){
+function toEditorData(docxContext){
+    let {docx} = docxContext;
     let data = [];
     for(let paragraph of docx.paragraphs) {
         let style = paragraph.style;
         let parFmt = paragraph.paragraph_format;
         let element = FormatConv.fromFormat(parFmt);
-        element.type = style.style_id;
+        element.type = style.name;
         element.children = [];
         let parFontConv = parFmt.font ? FontConv.fromFont(parFmt.font) : null;
         for (let run of paragraph.runs){
             let leaf = FontConv.run2Leaf(run, parFontConv);
             element.children.push(leaf);
         }
-        if (element.children.length===0)
-            element.children.push({text:""});
+        if (element.children.length===0){
+            let leaf = Object.assign({text:""}, parFontConv);
+            element.children.push(leaf);
+        }
         data.push(element);
     }
     return data;
 }
 
-function toDocx(docx, editor){
-    let data = editor.children;
+function toDocx(docxContext, data){
+    let {docx} = docxContext;
     for(let element of data){
         let paragraph = docx.add_paragraph();
-        let styleName = editor.getStyleName(element.type);
-        if(!styleName) {
-            //console.log(element.type, 'style not found');
-            styleName = "Normal";
-        }
+        let styleName = docxContext.typeConv(element.type);
+        docxContext.hasOrCloneStyle(styleName);
         paragraph.style = styleName;
         FormatConv.toFormat(paragraph.paragraph_format, element);
         for(let leaf of element.children){
@@ -38,11 +38,10 @@ function toDocx(docx, editor){
         }
     }
 }
-
-function saveDocx(editor){
-    let docx = editor.docx;
+function saveDocx(docxContext, data){
+    let {docx} = docxContext;
     docx._body.clear_content();
-    toDocx(docx, editor);
+    toDocx(docxContext, data);
     return docx.save()
 }
 

@@ -1,12 +1,14 @@
 import {Pt} from '@zhangyu836/docxjs/dist/es5/index';
 
 let indentSpacingPrs = ['first_line_indent', 'left_indent', 'right_indent',
-    'line_spacing', 'space_before', 'space_after'];
+    'space_before', 'space_after'];
 class IndentSpacingConv {
     static from(format, conv) {
         for(let pr of indentSpacingPrs) {
-            if (format[pr])
-                conv[pr] = format[pr].pt;
+            let v = format[pr];
+            if (v){
+                conv[pr] = v.pt;
+            }
         }
     }
     static to(format, conv) {
@@ -24,10 +26,6 @@ class IndentSpacingConv {
             styleObj.marginRight = `${conv.right_indent}pt`;
     }
     static spacing(conv, styleObj) {
-        if(conv.line_spacing){
-            styleObj.lineHeight = `${conv.line_spacing}pt`;
-            styleObj.minHeight = `${conv.line_spacing}pt`;
-        }
         if (conv.space_before)
             styleObj.marginTop = `${conv.space_before}pt`;
         if (conv.space_after)
@@ -36,6 +34,49 @@ class IndentSpacingConv {
     static toStyleObj(conv, styleObj){
         this.indent(conv, styleObj);
         this.spacing(conv, styleObj);
+    }
+}
+class LineSpacingConv {
+    static from(format, conv) {
+        let pr = 'line_spacing';
+        let v = format['line_spacing'];
+        if (v){
+            if(typeof v === 'number'){
+                conv[pr] = v;
+                conv['line_spacing_unit'] = '';
+            } else {
+                conv[pr] = v.pt;
+                conv['line_spacing_unit'] = 'pt';
+            }
+        }
+    }
+    static to(format, conv) {
+        let pr = 'line_spacing';
+        if (conv[pr])
+            if(conv['line_spacing_unit'])
+                format[pr] = new Pt(conv[pr]);
+            else
+                format[pr] = conv[pr];
+    }
+    static toStyleObj(conv, styleObj){
+        if(conv.line_spacing){
+            styleObj.lineHeight = `${conv.line_spacing}${conv.line_spacing_unit}`;
+        }
+    }
+}
+class ShdConv {
+    static from(format, conv) {
+        let pPr = format.element.pPr;
+        let shd = pPr ? pPr.shd : null;
+        if(shd){
+            conv.shd = shd.getAttribute('w:fill');
+        }
+    }
+    static to(format, conv){}
+    static toStyleObj(conv, styleObj){
+        if(conv.shd){
+            styleObj.backgroundColor = `#${conv.shd}`;
+        }
     }
 }
 class AlignmentConv {
@@ -176,6 +217,10 @@ class BorderConv {
                 conv[`border_${side}_color`] =
                     border.color === "auto" ? '000000' : `${border.color}`;
             }
+            if( border.space) {
+                conv[`padding_${side}`] = border.space;
+            }
+
         }
     }
     static to(format, conv) {
@@ -193,6 +238,10 @@ class BorderConv {
         if(color){
             styleObj[`border${Side}Color`] = `#${color}`;
         }
+        let padding = conv[`padding_${side}`];
+        if( padding) {
+            styleObj[`padding${Side}`] = `${padding}pt`;
+        }
     }
     static toStyleObj(conv, styleObj){
         for(let side of sides){
@@ -201,4 +250,46 @@ class BorderConv {
     }
 }
 
-export {IndentSpacingConv, AlignmentConv, BorderConv }
+class FontBorderConv {
+    static from(font, conv) {
+        let rprElem = font.element.rPr;
+        if(!rprElem) return;
+        let border = rprElem.bdr;
+        if(!border) return;
+        let val = border.val;
+        if (val === "nil")
+            return;
+        conv[`border_style`] = LineConv.from(val);
+        if(border.sz) {
+            conv[`border_width`] = border.sz.pt * 0.25;
+        }
+        if( border.color) {
+            conv[`border_color`] =
+                border.color === "auto" ? '000000' : `${border.color}`;
+        }
+        if( border.space) {
+            conv[`padding`] = border.space;
+        }
+    }
+    static to(format, conv) {
+    }
+    static toStyleObj(conv, styleObj){
+        let style = conv[`border_style`];
+        if (!style) return;
+        styleObj[`borderStyle`] = style;
+        let width = conv[`border_width`];
+        if(width){
+            styleObj[`borderWidth`] = `${width}pt`;
+        }
+        let color = conv[`border_color`];
+        if(color){
+            styleObj[`borderColor`] = `#${color}`;
+        }
+        let padding = conv[`padding`];
+        if( padding) {
+            styleObj[`padding`] = `${padding}pt`;
+        }
+    }
+}
+
+export {IndentSpacingConv, LineSpacingConv, AlignmentConv, BorderConv, ShdConv, FontBorderConv }

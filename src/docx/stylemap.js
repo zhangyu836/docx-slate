@@ -1,94 +1,144 @@
-import {css}  from '@emotion/css';
+import {css} from '@emotion/css';
 import {FormatConv} from './formatConv';
 import {FontConv} from './fontConv';
-import {loadNumbering} from "./numbering";
 
 class StyleMap {
-    constructor() {
-        this.id2format = new Map();
-        this.id2font = new Map();
-        this.link2font = new Map();
-        this.id2name = new Map();
-        this.id2css = new Map();
-        this.css2id = new Map();
-    }
-    load(styles, numberingMap){
+    constructor(styles, numberingMap) {
+        this.styles = styles;
         this.numberingMap = numberingMap;
-        for(let style of styles) {
+        this.nameToFormat = new Map();
+        this.idToFormat = new Map();
+        this.idToName = new Map();
+        this.nameToCss = new Map();
+        this.cssToName = new Map();
+        this.nameToFormatElem = new Map();
+        this.idToFont = new Map();
+        this.linkToFont = new Map();
+        this.nameToFont = new Map();
+        this.nameToFontElem = new Map();
+        this.loadStyles();
+        this.mergeBase();
+        this.generateCss();
+        this.loadDefaults();
+    }
+    loadStyles(){
+        for(let style of this.styles) {
             if (style.type===1){
-                let formatConv = new FormatConv(style.paragraph_format, style);
-                this.id2format.set(style.style_id, formatConv);
-                this.id2name.set(style.style_id, style.name);
-                let numbering = numberingMap.get(style.style_id);
+                let {style_id, name} = style;
+                let format = style.paragraph_format
+                let formatConv = new FormatConv(format, style);
+                this.idToFormat.set(style_id, formatConv);
+                this.nameToFormat.set(name, formatConv);
+                this.nameToFormatElem.set(name, format.element);
+                this.idToName.set(style_id, name);
+                let numbering = this.numberingMap.get(style_id);
                 if (numbering){
                     formatConv.numbering = numbering;
                 }
             } else if(style.type===2){
-                let font = new FontConv(style.font, style);
-                this.id2font.set(style.style_id, font);
-                if(font.link) {
-                    this.link2font.set(font.link, font);
-                } //else console.log('no link', font);
+                let {font, style_id} = style;
+                let fontConv = new FontConv(font, style);
+                this.idToFont.set(style_id, fontConv);
+                if(fontConv.link) {
+                    this.linkToFont.set(fontConv.link, fontConv);
+                    let name = this.idToName.get(fontConv.link);
+                    this.nameToFont.set(name, fontConv);
+                    this.nameToFontElem.set(name, font.element);
+                }
             }
         }
-        this.merge();
-        this.getCss();
     }
-    merge(){
-        for(let format of this.id2format.values()) {
+    mergeBase(){
+        for(let format of this.idToFormat.values()) {
             if(format.baseId){
-                let base = this.id2format.get(format.baseId);
+                let base = this.idToFormat.get(format.baseId);
                 format.merge(base);
             }
         }
-        for(let font of this.link2font.values()) {
+        for(let font of this.linkToFont.values()) {
             if(font.baseId){
-                let base = this.id2font.get(font.baseId);
+                let base = this.idToFont.get(font.baseId);
                 font.merge(base);
             }
         }
     }
-    getCss() {
-        for(let [styleId, format] of this.id2format.entries()) {
-            let styleObj = format.styleObj;
-            let cssClass = css(styleObj);
-            this.id2css.set(styleId, cssClass);
-            if(!this.css2id.has(cssClass))
-                this.css2id.set(cssClass, styleId);
+    generateCss() {
+        for(let [name, format] of this.nameToFormat.entries()) {
+            let cssClass = css(format.styleObj);
+            this.nameToCss.set(name, cssClass);
+            if(!this.cssToName.has(cssClass))
+                this.cssToName.set(cssClass, name);
         }
     }
-    global(editorClass){
-        let selector = `.${editorClass}`;
-        return {
-            [selector]: this.numberingMap.globalCounterReset
-        };
+    loadDefaults() {
+        let format = this.styles.default_format();
+        let formatObj = {margin: '0px'};
+        if(format){
+            let formatConv = FormatConv.fromFormat(format);
+            Object.assign(formatObj, FormatConv.toStyleObj(formatConv));
+            console.log('default format', formatObj);
+        }
+        this.defaultFormat = formatObj;
+
+        let font = this.styles.default_font();
+        let fontObj = {};
+        if(font){
+            let fontConv = FontConv.fromFont(font);
+            Object.assign(fontObj, FontConv.toStyleObj(fontConv));
+            console.log('default font', fontObj);
+        }
+        this.defaultFont = fontObj;
     }
-    getCssClass(id) {
-        return this.id2css.get(id);
+
+    getCssClass(name) {
+        return this.nameToCss.get(name);
     }
-    getFont(id) {
-        let font = this.link2font.get(id);
+    getFont(name) {
+        let font = this.nameToFont.get(name);
         if(font){
             return font.conv;
         }
         return null;
     }
-    get elementTypes(){
-        let options = [];
-        let types = [];
-        for(let id of this.css2id.values()){
-            options.push({value:id, text:this.id2name.get(id)});
-            types.push(id);
+    getDefaultFormat(curStyleMap) {
+        if(curStyleMap) return curStyleMap.defaultFormat;
+        return this.defaultFormat;
+    }
+    getDefaultFont(curStyleMap) {
+        if(curStyleMap) return curStyleMap.defaultFont;
+        return this.defaultFont;
+    }
+    getElementTypes(curStyleMap){
+        let names = curStyleMap ? [...curStyleMap.cssToName.values()] : [];
+        for(let name of this.cssToName.values()){
+            if(!names.includes(name)){
+                names.push(name);
+            }
         }
-        return {options, types};
+        return names;
+    }
+    hasStyle(styleName){
+        return this.nameToFormat.has(styleName);
+    }
+    styleAdded(styleName){
+        return this.nameToFormat.set(styleName, true);
+    }
+    cloneStyle(styleName, curStyleMap) {
+        let stylesElem = curStyleMap.styles.element;
+        let formatElem = this.nameToFormatElem.get(styleName);
+        let formatClone = formatElem.clone();
+        stylesElem.append(formatClone);
+        let fontElem = this.nameToFontElem.get(styleName);
+        if(fontElem){
+            let fontClone = fontElem.clone();
+            stylesElem.append(fontClone);
+        }
+        curStyleMap.styleAdded(styleName);
     }
 }
 
-function getStyleMap(docx){
-    let numberingMap = loadNumbering(docx);
-    let styleMap = new StyleMap();
-    styleMap.load(docx.styles, numberingMap);
-    return styleMap;
+function getStyleMap(docx, numberingMap){
+    return new StyleMap(docx.styles, numberingMap);
 }
 
-export {getStyleMap, StyleMap}
+export {getStyleMap}

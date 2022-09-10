@@ -29,8 +29,7 @@ import TagContainer from './Highlight/TagContainer';
 const HOTKEYS = {
 	'mod+b': 'bold',
 	'mod+i': 'italic',
-	'mod+u': 'underline',
-	'mod+`': 'code',
+	'mod+u': 'underline'
 };
 
 const SlateEditor = () => {
@@ -54,7 +53,7 @@ const SlateEditor = () => {
 
 	return (
 		<div className='editor-container'>
-			<Global styles={css(editor.styleMap.global(editorClass))}/>
+			<Global styles={css(editor.getGlobalStyleObj(editorClass))}/>
 			<Slate
 				className={editorClass}
 				editor={editor}
@@ -74,29 +73,28 @@ const SlateEditor = () => {
 						icon='format_underlined'
 						title='underline'
 					/>
-					<MarkButton format='code' icon='code' title='code' />
 					<BlockButton
-						format='heading-one'
+						format='Heading 1'
 						icon='looks_one'
 						title='heading 1'
 					/>
 					<BlockButton
-						format='heading-two'
+						format='Heading 2'
 						icon='looks_two'
 						title='heading 2'
 					/>
 					<BlockButton
-						format='block-quote'
+						format='Intense Quote'
 						icon='format_quote'
 						title='quote'
 					/>
 					<BlockButton
-						format='numbered-list'
+						format='List Number'
 						icon='format_list_numbered'
 						title='numbered list'
 					/>
 					<BlockButton
-						format='bulleted-list'
+						format='List Bullet'
 						icon='format_list_bulleted'
 						title='bulletted list'
 					/>
@@ -131,40 +129,6 @@ const SlateEditor = () => {
 					placeholder='Enter some rich text…'
 					spellCheck
 					autoFocus
-					// check if hotkeys are pressed and then toggle the correct option from toolbar
-					onKeyDown={(event) => {
-						for (const hotkey in HOTKEYS) {
-							if (isHotkey(hotkey, event)) {
-								event.preventDefault();
-								const mark = HOTKEYS[hotkey];
-								toggleMark(editor, mark);
-							}
-						}
-						const { selection } = editor;
-
-						// Default left/right behavior is unit:'character'.
-						// This fails to distinguish between two cursor positions, such as
-						// <inline>foo<cursor/></inline> vs <inline>foo</inline><cursor/>.
-						// Here the modified behavior unit is 'offset'.
-						// This lets the user step into and out of the inline without stepping over characters.
-						// You may wish to customize this further to only use unit:'offset' in specific cases.
-						if (selection && Range.isCollapsed(selection)) {
-							const { nativeEvent } = event;
-							if (isKeyHotkey('left', nativeEvent)) {
-								event.preventDefault();
-								Transforms.move(editor, {
-									unit: 'offset',
-									reverse: true,
-								});
-								return;
-							}
-							if (isKeyHotkey('right', nativeEvent)) {
-								event.preventDefault();
-								Transforms.move(editor, { unit: 'offset' });
-								return;
-							}
-						}
-					}}
 				/>
 			</Slate>
 			<TagContainer />
