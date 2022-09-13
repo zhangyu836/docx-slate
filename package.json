@@ -5,6 +5,7 @@
   "author": "Zhang Yu",
   "license": "MIT",
   "private": false,
+  "homepage": "https://zhangyu836.github.io/docx-slate",
   "repository": {
     "type": "git",
     "url": "https://github.com/zhangyu836/docx-slate.git"
@@ -51,9 +52,12 @@
     "crypto-browserify": "latest",
     "path-browserify": "latest",
     "stream-browserify": "latest",
-    "constants-browserify": "latest"
+    "constants-browserify": "latest",
+    "gh-pages": "^4.0.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
