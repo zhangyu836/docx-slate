@@ -8,7 +8,7 @@ function toEditorData(docxContext){
         let style = paragraph.style;
         let parFmt = paragraph.paragraph_format;
         let element = FormatConv.fromFormat(parFmt);
-        element.type = style.name;
+        element.type = style ? style.name : 'Normal';
         element.children = [];
         let parFontConv = parFmt.font ? FontConv.fromFont(parFmt.font) : null;
         for (let run of paragraph.runs){

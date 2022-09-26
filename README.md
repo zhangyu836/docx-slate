@@ -1,5 +1,5 @@
 
-## Docx-Slate
+# Docx-Slate
 A simple slatejs-based docx editor for demonstration of [docxjs](https://github.com/zhangyu836/docxjs).  
 
 Open [demo on github.io](https://zhangyu836.github.io/docx-slate/)  

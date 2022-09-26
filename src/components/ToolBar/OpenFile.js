@@ -1,8 +1,11 @@
-import {useRef} from 'react';
+import {useRef, useState} from 'react';
 import { useSlate } from 'slate-react';
+import {Transforms} from "slate";
+import { RotatingLines } from 'react-loader-spinner';
 
 const OpenFile = () => {
     const inputRef = useRef(null);
+    let [loading, setLoading] = useState(false);
     let editor = useSlate();
 
     const handleClick = () => {
@@ -14,10 +17,14 @@ const OpenFile = () => {
         if (!fileObj) {
             return;
         }
+        setLoading(true);
         const reader = new FileReader();
         reader.readAsArrayBuffer(fileObj);
         reader.onload = function (){
+            let start = { path: [0, 0], offset: 0};
+            Transforms.select(editor, { anchor: start, focus: start });
             editor.loadDocx(this.result);
+            setLoading(false);
         }
         console.log(fileObj.name);
         // reset file input
@@ -30,9 +37,11 @@ const OpenFile = () => {
                 style={{display: 'none'}}
                 ref={inputRef}
                 type="file"
+                accept=".docx"
                 onChange={handleFileChange}
             />
             <button onClick={handleClick}>Open Docx</button>
+            <RotatingLines visible={loading} width={20}/>
         </div>
     );
 };

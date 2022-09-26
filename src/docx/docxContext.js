@@ -2,18 +2,21 @@ import React from 'react';
 import {Document} from '@zhangyu836/docxjs/dist/es5/index';
 import {getStyleMap} from './stylemap';
 import {loadNumbering} from './numbering';
+import {getSection} from './section';
 
 class DocxStore {
     constructor() {
         this.docx = null;
         this.numberingMap = null;
         this.styleMap = null;
+        this.section = null;
         this.loaded = false;
     }
     loadDocx(docx) {
         this.docx = docx;
         this.numberingMap = loadNumbering(docx);
         this.styleMap = getStyleMap(docx, this.numberingMap);
+        this.section = getSection(docx);
         this.loaded = true;
     }
     loadDefaultDocx() {
@@ -45,6 +48,12 @@ class DocxContext {
         let curStyleMap = this.curStore.styleMap;
         this._elementTypes = dftStyleMap.getElementTypes(curStyleMap);
         return this._elementTypes;
+    }
+    get pageStyle() {
+        let dftSection = this.dftStore.section;
+        let curSection = this.curStore.section;
+        if(curSection) return curSection.pageStyle;
+        return dftSection.pageStyle;
     }
     getCssClass(name) {
         return this.curStore.getCssClass(name) || this.dftStore.getCssClass(name);

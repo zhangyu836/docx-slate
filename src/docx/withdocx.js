@@ -11,7 +11,10 @@ const withDocx = (editor) => {
     };
     editor.getGlobalStyleObj = (className) => {
         return docxContext.getGlobalStyleObj(className);
-    }
+    };
+    editor.getPageStyle = () => {
+        return docxContext.pageStyle;
+    };
     editor.getElementTypes = () => {
         return docxContext.elementTypes;
     }

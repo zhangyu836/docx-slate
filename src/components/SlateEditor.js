@@ -50,6 +50,7 @@ const SlateEditor = () => {
 		[]
 	);
 	let editorClass = 'rich-editor';
+	let pageStyle = editor.getPageStyle();
 
 	return (
 		<div className='editor-container'>
@@ -122,14 +123,18 @@ const SlateEditor = () => {
 					<SaveFile/>
 				</Toolbar>
 				{/* the slate editor */}
-				<Editable
-					className='rich-editor'
-					renderElement={renderElement}
-					renderLeaf={renderLeaf}
-					placeholder='Enter some rich text…'
-					spellCheck
-					autoFocus
-				/>
+				<div className={pageStyle}>
+					<div className='page'>
+						<Editable
+							renderElement={renderElement}
+							renderLeaf={renderLeaf}
+							placeholder='Enter some rich text…'
+							spellCheck
+							autoFocus
+						/>
+					</div>
+				</div>
+
 			</Slate>
 			<TagContainer />
 		</div>

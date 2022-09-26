@@ -16,7 +16,7 @@ const Toolbar = React.forwardRef(({ className, ...props }, ref) => (
 				padding: 1em;
 				margin: 0;
 				border-bottom: 2px solid #eee;
-				margin-bottom: 20px;
+				margin-bottom: 2px;
 			`
 		)}
 	/>

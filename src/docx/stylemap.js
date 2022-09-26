@@ -109,8 +109,8 @@ class StyleMap {
         return this.defaultFont;
     }
     getElementTypes(curStyleMap){
-        let names = curStyleMap ? [...curStyleMap.cssToName.values()] : [];
-        for(let name of this.cssToName.values()){
+        let names = curStyleMap ? [...curStyleMap.nameToFormat.keys()] : [];
+        for(let name of this.nameToFormat.keys()){
             if(!names.includes(name)){
                 names.push(name);
             }
