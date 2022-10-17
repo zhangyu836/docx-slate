@@ -1,6 +1,4 @@
-import {Pt} from '@zhangyu836/docxjs/dist/es5/index';
-import {RGBColor} from '@zhangyu836/docxjs/dist/es5/shared';
-import {WD_COLOR} from '@zhangyu836/docxjs/dist/es5/enum/text';
+import {shared, enums} from 'docxyz';
 import {FontBorderConv} from './converters';
 
 let boolPrs = ['bold', 'italic', 'all_caps', 'small_caps',
@@ -31,7 +29,7 @@ class FontConv {
         if(font.color.rgb)
             conv.color = font.color.rgb.toString();
         if(font.highlight_color){
-            conv.highlight = WD_COLOR.to_xml(font.highlight_color);
+            conv.highlight = enums.WD_COLOR.to_xml(font.highlight_color);
         }
         if(font.underline)
             conv.underline = font.underline;
@@ -62,11 +60,11 @@ class FontConv {
             }
         }
         if(leaf.size)
-            font.size = new Pt(leaf.size);
+            font.size = new shared.Pt(leaf.size);
         if(leaf.color)
-            font.color.rgb = RGBColor.from_string(leaf.color);
+            font.color.rgb = shared.RGBColor.from_string(leaf.color);
         if(leaf.highlight) {
-            font.highlight_color = WD_COLOR.from_xml(leaf.highlight);
+            font.highlight_color = enums.WD_COLOR.from_xml(leaf.highlight);
         }
         if(leaf.underline)
             font.underline = leaf.underline;

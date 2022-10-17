@@ -12,16 +12,16 @@ import { MarkButton, toggleMark } from './ToolBar/MarkButton';
 import { BlockButton } from './ToolBar/BlockButton';
 import Elements from './Common/Elements';
 import Leaf from './Common/Leaf';
+
+//import { withImages, InsertImageButton } from './Image/InsertImageButton';
+import { withLinks } from './Link/linkUtilFunctions';
+//import AddLinkButton from './Link/AddLinkButton';
+//import RemoveLinkButton from './Link/RemoveLinkButton';
 import OpenFile from "./ToolBar/OpenFile";
 import SaveFile from "./ToolBar/SaveFile";
-import {withDocx} from "../docx/withdocx";
 import { Dropdown} from './ToolBar/ElementType';
-
-import { withImages, InsertImageButton } from './Image/InsertImageButton';
-import { withLinks } from './Link/linkUtilFunctions';
-import AddLinkButton from './Link/AddLinkButton';
-import RemoveLinkButton from './Link/RemoveLinkButton';
-
+import {withDocx} from "../docx/withdocx";
+import { withTables } from './Common/Table';
 import '../styles/editor.css';
 import TagContainer from './Highlight/TagContainer';
 
@@ -46,11 +46,19 @@ const SlateEditor = () => {
 
 	// the slate editor object
 	const editor = useMemo(
-		() => withDocx(withLinks(withImages(withHistory(withReact(createEditor()))))),
+		() => withDocx(withTables(withLinks(withHistory(withReact(createEditor()))))),
 		[]
 	);
 	let editorClass = 'rich-editor';
-	let pageStyle = editor.getPageStyle();
+	let pageStyle = {
+		width: '90%',
+		display: 'flex',
+		flexFlow: 'column',
+		alignItems: 'center',
+		fontFamily: 'Calibri',
+		backgroundColor: 'lightsteelblue',
+		padding: '27pt'
+	}
 
 	return (
 		<div className='editor-container'>
@@ -97,7 +105,7 @@ const SlateEditor = () => {
 					<BlockButton
 						format='List Bullet'
 						icon='format_list_bulleted'
-						title='bulletted list'
+						title='bulleted list'
 					/>
 					<BlockButton
 						format='left'
@@ -123,26 +131,23 @@ const SlateEditor = () => {
 					<SaveFile/>
 				</Toolbar>
 				{/* the slate editor */}
-				<div className={pageStyle}>
-					<div className='page'>
-						<Editable
-							renderElement={renderElement}
-							renderLeaf={renderLeaf}
-							placeholder='Enter some rich text…'
-							spellCheck
-							autoFocus
-						/>
-					</div>
+				<div className={editorClass} style={pageStyle}>
+					<Editable
+						renderElement={renderElement}
+						renderLeaf={renderLeaf}
+						placeholder='Enter some rich text…'
+						spellCheck
+						autoFocus
+					/>
 				</div>
-
 			</Slate>
 			<TagContainer />
 		</div>
 	);
 };
 
-// to display some intial text
-const initialValue = [
+// to display some initial text
+let paragraphs = [
 	{
 		type: 'paragraph',
 		children: [
@@ -168,7 +173,8 @@ const initialValue = [
 		],
 	},
 	{
-		type: 'block-quote',
+		type: 'paragraph',
+		style: 'Intense Quote',
 		children: [{ text: 'A wise quote.' }],
 	},
 	{
@@ -177,5 +183,17 @@ const initialValue = [
 		children: [{ text: 'Try it out for yourself!' }],
 	},
 ];
+
+let initialValue = [
+	{
+		type: 'section',
+		children: [
+			{
+				type: 'column',
+				children: paragraphs
+			}
+			]
+	}
+	]
 
 export default SlateEditor;

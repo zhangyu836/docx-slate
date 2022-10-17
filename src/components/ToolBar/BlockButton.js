@@ -4,31 +4,16 @@ import { Editor, Transforms, Element as SlateElement } from 'slate';
 import Button from '../Common/Button';
 import Icon from '../Common/Icon';
 
-const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 
 // function to handle the toggling action on block level buttons
 export const toggleBlock = (editor, format) => {
 	// to check if block button is currently active
-	const isActive = isBlockActive(
-		editor,
-		format,
-		TEXT_ALIGN_TYPES.includes(format) ? 'alignment' : 'type'
+	const isActive = isBlockActive(editor, format,
+		TEXT_ALIGN_TYPES.includes(format) ? 'alignment' : 'style'
 	);
-	const isList = LIST_TYPES.includes(format);
-
-	// unwrap Slate nodes at specified location
-	Transforms.unwrapNodes(editor, {
-		match: (n) =>
-			!Editor.isEditor(n) &&
-			SlateElement.isElement(n) &&
-			LIST_TYPES.includes(n.type) &&
-			!TEXT_ALIGN_TYPES.includes(format),
-		split: true,
-	});
 
 	let newProperties;
-
 	// once toggled, add new style properties to selected block
 	if (TEXT_ALIGN_TYPES.includes(format)) {
 		newProperties = {
@@ -36,22 +21,15 @@ export const toggleBlock = (editor, format) => {
 		};
 	} else {
 		newProperties = {
-			type: isActive ? 'paragraph' : isList ? 'list-item' : format,
+			style: isActive ? undefined : format,
 		};
 	}
-
 	// set node with updated properties
 	Transforms.setNodes(editor, newProperties);
-
-	// wrap the entire selection to apply block level style
-	if (!isActive && isList) {
-		const block = { type: format, children: [] };
-		Transforms.wrapNodes(editor, block);
-	}
 };
 
 // to check if block is currently toggled on
-export const isBlockActive = (editor, format, blockType = 'type') => {
+export const isBlockActive = (editor, format, blockType = 'style') => {
 	const { selection } = editor;
 	if (!selection) return false;
 
@@ -59,15 +37,10 @@ export const isBlockActive = (editor, format, blockType = 'type') => {
 	const [match] = Array.from(
 		Editor.nodes(editor, {
 			at: Editor.unhangRange(editor, selection),
-			match: (n) => {
-				if(!Editor.isEditor(n))
-					if(SlateElement.isElement(n)){
-						let type = n[blockType];
-						if(blockType==='type')
-							 type = editor.typeConv(type);
-						return type === format;
-					}
-			}
+			match: (n) =>	!Editor.isEditor(n) &&
+				SlateElement.isElement(n) &&
+				n.type==='paragraph' &&
+				n[blockType] === format
 		})
 	);
 	return !!match;
@@ -82,7 +55,7 @@ export const BlockButton = ({ format, icon, title }) => {
 			active={isBlockActive(
 				editor,
 				format,
-				TEXT_ALIGN_TYPES.includes(format) ? 'alignment' : 'type'
+				TEXT_ALIGN_TYPES.includes(format) ? 'alignment' : 'style'
 			)}
 			onMouseDown={(event) => {
 				event.preventDefault();

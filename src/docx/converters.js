@@ -1,4 +1,4 @@
-import {Pt} from '@zhangyu836/docxjs/dist/es5/index';
+import {shared} from 'docxyz';
 
 let indentSpacingPrs = ['first_line_indent', 'left_indent', 'right_indent',
     'space_before', 'space_after'];
@@ -14,7 +14,7 @@ class IndentSpacingConv {
     static to(format, conv) {
         for(let pr of indentSpacingPrs) {
             if (conv[pr])
-                format[pr] = new Pt(conv[pr]);
+                format[pr] = new shared.Pt(conv[pr]);
         }
     }
     static indent(conv, styleObj){
@@ -54,7 +54,7 @@ class LineSpacingConv {
         let pr = 'line_spacing';
         if (conv[pr])
             if(conv['line_spacing_unit'])
-                format[pr] = new Pt(conv[pr]);
+                format[pr] = new shared.Pt(conv[pr]);
             else
                 format[pr] = conv[pr];
     }

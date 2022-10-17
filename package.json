@@ -1,6 +1,6 @@
 {
   "name": "docx-slate",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A simple slatejs-based docx editor for demonstration of docxjs.",
   "author": "Zhang Yu",
   "license": "MIT",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@emotion/css": "^11.7.1",
     "@emotion/react": "^11.10.0",
-    "@zhangyu836/docxjs": "^0.1.8",
+    "docxyz": "^0.2.1",
     "image-extensions": "^1.1.0",
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",
@@ -37,7 +37,8 @@
     "slate-react": "^0.82.1",
     "web-vitals": "^2.1.4",
     "file-saver": "^2.0.5",
-    "react-loader-spinner": "^5.3.4"
+    "react-loader-spinner": "^5.3.4",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.3",

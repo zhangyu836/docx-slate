@@ -1,16 +1,42 @@
 import React from 'react';
-import {useSlate} from 'slate-react';
+import {Editor, Element as SlateElement} from 'slate'
+import {ReactEditor, useSlate} from 'slate-react';
 import {FontConv} from '../../docx/fontConv';
 
-const Leaf = ({ attributes, children, leaf }) => {
+const Leaf = ({ attributes, children, leaf, text }) => {
 	let font = leaf;
-	let parent = children.props.parent;
-	if(parent){
-		let editor = useSlate();
-		let type = editor.typeConv(parent.type);
-		let parFont = editor.getFont(type);
-		font = Object.assign({}, parFont, leaf);
+	let editor = useSlate();
+	let path = ReactEditor.findPath(editor, text)
+	const [matchParagraph] =
+		Editor.nodes(editor, {
+				at: path,
+				match: (n) =>
+					!Editor.isEditor(n) &&
+					SlateElement.isElement(n) && n.type==='paragraph',
+			}
+		);
+	if(matchParagraph){
+		let parent = matchParagraph[0];
+		let styleName = parent.style;
+		let parFont = editor.getFont(styleName);
+		let runFont = {};
+		if(text.style){
+			runFont = editor.getFont(text.style);
+		}
+		font = Object.assign({}, parFont, runFont, leaf);
 	}
+    /*
+	const [matchTable] =
+		Editor.nodes(editor, {
+				at: path,
+				match: (n) =>
+					!Editor.isEditor(n) &&
+					SlateElement.isElement(n) && n.type==='table',
+			}
+		);
+	if(matchTable) {
+	}*/
+
 	if(font.strike) {
 		children = <s>{children}</s>;
 	}

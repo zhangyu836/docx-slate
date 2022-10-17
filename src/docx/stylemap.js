@@ -24,8 +24,8 @@ class StyleMap {
     loadStyles(){
         for(let style of this.styles) {
             if (style.type===1){
-                let {style_id, name} = style;
-                let format = style.paragraph_format
+                let {style_id, name, paragraph_format:format} = style;
+                //let format = style.paragraph_format
                 let formatConv = new FormatConv(format, style);
                 this.idToFormat.set(style_id, formatConv);
                 this.nameToFormat.set(name, formatConv);
@@ -36,8 +36,9 @@ class StyleMap {
                     formatConv.numbering = numbering;
                 }
             } else if(style.type===2){
-                let {font, style_id} = style;
+                let {font, style_id, name} = style;
                 let fontConv = new FontConv(font, style);
+                this.nameToFont.set(name, fontConv);
                 this.idToFont.set(style_id, fontConv);
                 if(fontConv.link) {
                     this.linkToFont.set(fontConv.link, fontConv);
@@ -97,6 +98,13 @@ class StyleMap {
         let font = this.nameToFont.get(name);
         if(font){
             return font.conv;
+        }
+        return null;
+    }
+    getFormat(name) {
+        let format = this.nameToFormat.get(name);
+        if(format){
+            return format.styleObj;
         }
         return null;
     }

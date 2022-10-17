@@ -1,6 +1,7 @@
-import {Document} from '@zhangyu836/docxjs/dist/es5/index';
+import {Document} from 'docxyz';
 import {docxContext} from "./docxContext";
-import {toEditorData, saveDocx} from './dataTransform';
+import {toEditorData, saveDocx} from './trans';
+import { v4 as uuid } from 'uuid';
 
 const withDocx = (editor) => {
     editor.getCssClass = (name) => {
@@ -9,11 +10,11 @@ const withDocx = (editor) => {
     editor.getFont = (name) => {
         return docxContext.getFont(name);
     };
+    editor.getFormat = (name) => {
+        return docxContext.getFormat(name);
+    };
     editor.getGlobalStyleObj = (className) => {
         return docxContext.getGlobalStyleObj(className);
-    };
-    editor.getPageStyle = () => {
-        return docxContext.pageStyle;
     };
     editor.getElementTypes = () => {
         return docxContext.elementTypes;
@@ -40,9 +41,6 @@ const withDocx = (editor) => {
     };
     editor.saveDocx = () => {
         return saveDocx(docxContext, editor.children);
-    }
-    editor.typeConv = (type) => {
-        return docxContext.typeConv(type);
     }
     return editor;
 };

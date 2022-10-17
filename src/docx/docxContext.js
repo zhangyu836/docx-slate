@@ -1,22 +1,22 @@
 import React from 'react';
-import {Document} from '@zhangyu836/docxjs/dist/es5/index';
+import {Document} from 'docxyz';
 import {getStyleMap} from './stylemap';
 import {loadNumbering} from './numbering';
-import {getSection} from './section';
+import {getSectionMap} from './section';
 
 class DocxStore {
     constructor() {
         this.docx = null;
         this.numberingMap = null;
         this.styleMap = null;
-        this.section = null;
+        this.sectionMap = null;
         this.loaded = false;
     }
     loadDocx(docx) {
         this.docx = docx;
         this.numberingMap = loadNumbering(docx);
         this.styleMap = getStyleMap(docx, this.numberingMap);
-        this.section = getSection(docx);
+        this.sectionMap = getSectionMap(docx);
         this.loaded = true;
     }
     loadDefaultDocx() {
@@ -30,6 +30,10 @@ class DocxStore {
     getFont(name) {
         if(!this.loaded) return ;
         return this.styleMap.getFont(name);
+    }
+    getFormat(name) {
+        if(!this.loaded) return ;
+        return this.styleMap.getFormat(name);
     }
 }
 
@@ -49,11 +53,11 @@ class DocxContext {
         this._elementTypes = dftStyleMap.getElementTypes(curStyleMap);
         return this._elementTypes;
     }
-    get pageStyle() {
-        let dftSection = this.dftStore.section;
-        let curSection = this.curStore.section;
-        if(curSection) return curSection.pageStyle;
-        return dftSection.pageStyle;
+    get sectionMap(){
+        let dftSectionMap = this.dftStore.sectionMap;
+        let curSectionMap = this.curStore.sectionMap;
+        if(curSectionMap) return curSectionMap;
+        return dftSectionMap;
     }
     getCssClass(name) {
         return this.curStore.getCssClass(name) || this.dftStore.getCssClass(name);
@@ -61,6 +65,10 @@ class DocxContext {
     getFont(name) {
         let parFont = this.curStore.getFont(name) || this.dftStore.getFont(name);
         return parFont || {};
+    }
+    getFormat(name) {
+        let parFormat = this.curStore.getFormat(name) || this.dftStore.getFormat(name);
+        return parFormat || {};
     }
     getGlobalStyleObj(className){
         if(this._globalStyleObj) return this._globalStyleObj;
@@ -74,8 +82,8 @@ class DocxContext {
         let selector = `.${className}`;
         this._globalStyleObj = {
             [selector]: counterReset,
-            'p': dftFormat,
-            'p span[data-slate-node]': dftFont
+            'p[data-slate-node=element]': dftFormat,
+            'span[data-slate-node=text]': dftFont
         };
         return this._globalStyleObj;
     }
@@ -90,24 +98,6 @@ class DocxContext {
         this.curStore.loadDocx(docx);
         this._elementTypes = null;
         this._globalStyleObj = null;
-    }
-    typeConv(type) {
-        if (this.elementTypes.includes(type)) return type;
-        switch (type) {
-            case "paragraph":
-                return "Normal";
-            case "block-quote":
-                return "Intense Quote";
-            case "heading-one":
-                return "Heading 1";
-            case "heading-two":
-                return "Heading 2";
-            case "bulleted-list":
-                return "List Bullet";
-            case "numbered-list":
-                return "List Number";
-        }
-        return "Normal";
     }
 }
 

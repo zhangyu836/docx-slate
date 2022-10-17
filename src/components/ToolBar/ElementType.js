@@ -26,10 +26,12 @@ const activeBlockType = (editor, types) => {
             at: Editor.unhangRange(editor, selection),
             match: (n) =>
                 !Editor.isEditor(n) &&
-                SlateElement.isElement(n) && types.includes(n.type),
+                SlateElement.isElement(n) &&
+                n.type==='paragraph' &&
+                types.includes(n.style),
         }
     );
-    if(match) return match[0].type;
+    if(match) return match[0].style;
     return '';
 };
 const changeFormat = (editor, event) => {

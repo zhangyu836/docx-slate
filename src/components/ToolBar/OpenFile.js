@@ -21,8 +21,7 @@ const OpenFile = () => {
         const reader = new FileReader();
         reader.readAsArrayBuffer(fileObj);
         reader.onload = function (){
-            let start = { path: [0, 0], offset: 0};
-            Transforms.select(editor, { anchor: start, focus: start });
+            Transforms.deselect(editor);
             editor.loadDocx(this.result);
             setLoading(false);
         }

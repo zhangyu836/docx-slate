@@ -6,7 +6,7 @@ export const withLinks = (editor) => {
 	const { insertData, insertText, isInline } = editor;
 
 	editor.isInline = (element) =>
-		['link', 'button'].includes(element.type) || isInline(element);
+		['hyperlink', 'button'].includes(element.type) || isInline(element);
 
 	editor.insertText = (text) => {
 		if (text && isUrl(text)) {

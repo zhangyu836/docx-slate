@@ -50,18 +50,31 @@ function getParMarks(editor){
 	let marks = {};
 	let {selection} = editor;
 	if(selection){
-		const [match] = Editor.nodes(editor, {
+		const [matchParagraph] = Editor.nodes(editor, {
 				at: Editor.unhangRange(editor, selection),
 				match: (n) =>
 					!Editor.isEditor(n) &&
 					SlateElement.isElement(n)&&
-					Editor.isBlock(editor, n),
+					Editor.isBlock(editor, n) && (n.type==='paragraph'),
 			}
 		);
-		if(match){
-			let type = editor.typeConv(match[0].type);
-			marks = editor.getFont(type);
-			//console.log('match node', match, marks);
+		if(matchParagraph){
+			let styleName = matchParagraph[0].style;
+			//console.log('match paragraph', matchParagraph[0])
+			marks = editor.getFont(styleName);
+		}
+		const [matchText] = Editor.nodes(editor, {
+				at: Editor.unhangRange(editor, selection),
+				match: (n) =>
+					!Editor.isEditor(n) &&
+					n.text && n.style,
+			}
+		);
+		if(matchText){
+			let styleName = matchText[0].style;
+			//console.log('match text', matchText[0])
+			let runMarks = editor.getFont(styleName)
+			marks = Object.assign({}, marks, runMarks)
 		}
 	}
 	return marks;
@@ -72,8 +85,5 @@ export const isMarkActive = (editor, format) => {
 	let runMarks = Editor.marks(editor);
 	let parMarks = getParMarks(editor);
 	let marks = Object.assign({}, parMarks, runMarks);
-	//console.log('runMarks', runMarks);
-	//console.log('parMarks', parMarks);
-	//console.log('combined marks', marks);
 	return marks ? marks[format] === true : false;
 };
