@@ -1,5 +1,8 @@
 import {shared, enums} from 'docxyz';
 import {FontBorderConv} from './converters';
+import hash from 'object-hash';
+import {cache} from "./cache";
+import {serializeToString} from 'docxyz/src/oxml/xmlhandler'
 
 let boolPrs = ['bold', 'italic', 'all_caps', 'small_caps',
     'strike', 'subscript', 'superscript', 'outline'];//, 'rtl'
@@ -19,24 +22,35 @@ class FontConv {
     }
     static fromFont(font) {
         let conv = {};
-        for(let pr of boolPrs){
-            if(font[pr]!==null) {
-                conv[pr] = font[pr];
+        let rPr = font._element.rPr;
+        if(!rPr){
+            return conv;
+        } else {
+            let h = hash(serializeToString(rPr.xmlElement));
+            let c = cache.get(h);
+            if (c) {
+                return Object.assign({}, c);
             }
+            for(let pr of boolPrs){
+                if(font[pr]!==null) {
+                    conv[pr] = font[pr];
+                }
+            }
+            if(font.size)
+                conv.size = font.size.pt;
+            if(font.color.rgb)
+                conv.color = font.color.rgb.toString();
+            if(font.highlight_color){
+                conv.highlight = enums.WD_COLOR.to_xml(font.highlight_color);
+            }
+            if(font.underline)
+                conv.underline = font.underline;
+            if(font.name)
+                conv.name = font.name;
+            FontBorderConv.from(font, conv);
+            cache.set(h, conv);
+            return conv;
         }
-        if(font.size)
-            conv.size = font.size.pt;
-        if(font.color.rgb)
-            conv.color = font.color.rgb.toString();
-        if(font.highlight_color){
-            conv.highlight = enums.WD_COLOR.to_xml(font.highlight_color);
-        }
-        if(font.underline)
-            conv.underline = font.underline;
-        if(font.name)
-            conv.name = font.name;
-        FontBorderConv.from(font, conv);
-        return conv;
     }
     merge(base){
         if(Object.keys(base.conv).length===0) return;

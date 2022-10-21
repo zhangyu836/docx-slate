@@ -6,10 +6,11 @@ import {FormatConv} from "./formatConv";
 class RunTrans {
     static from(run, options) {
         let leaf = FontConv.run2Leaf(run, options.parFontConv);
-        if(run.style){
-            if (!run.style._element.default){
-                leaf.style = run.style.name;
-            }
+        // save time
+        let styleId = run._element.style;
+        if(styleId) {
+            let {docxContext} = options;
+            leaf.style = docxContext.styleMap.idToFontName.get(styleId);
         }
         return leaf;
     }
@@ -48,8 +49,14 @@ class ParagraphTrans {
         let children = [];
         let parFmt = paragraph.paragraph_format;
         let element = FormatConv.fromFormat(parFmt);
-        let style = paragraph.style;
-        element.style = style.name;
+        // save time
+        let styleId = paragraph._p.style;
+        if(!styleId) {
+            element.style = 'Normal';
+        } else {
+            let {docxContext} = options;
+            element.style = docxContext.styleMap.idToName.get(styleId);
+        }
         element.type = elementTypes.PARAGRAPH;
         let parFontConv = parFmt.font ? FontConv.fromFont(parFmt.font) : null;
         options.parFontConv = parFontConv;

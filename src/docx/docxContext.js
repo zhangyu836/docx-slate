@@ -54,10 +54,10 @@ class DocxContext {
         return this._elementTypes;
     }
     get sectionMap(){
-        let dftSectionMap = this.dftStore.sectionMap;
-        let curSectionMap = this.curStore.sectionMap;
-        if(curSectionMap) return curSectionMap;
-        return dftSectionMap;
+        return this.curStore.sectionMap || this.dftStore.sectionMap;
+    }
+    get styleMap() {
+        return this.curStore.styleMap || this.dftStore.styleMap;
     }
     getCssClass(name) {
         return this.curStore.getCssClass(name) || this.dftStore.getCssClass(name);

@@ -1,5 +1,9 @@
 import {IndentSpacingConv, LineSpacingConv, AlignmentConv,
     BorderConv, ShdConv} from './converters';
+import hash from "object-hash";
+import {cache} from "./cache";
+import {serializeToString} from "docxyz/src/oxml/xmlhandler";
+
 
 let convertors = [IndentSpacingConv, LineSpacingConv, AlignmentConv,
     BorderConv, ShdConv]
@@ -18,10 +22,21 @@ class FormatConv {
     }
     static fromFormat(format){
         let conv = {};
-        for(let convertor of convertors){
-            convertor.from(format, conv);
+        let pPr = format._element.pPr;
+        if(!pPr){
+            return conv;
+        } else {
+            let h = hash(serializeToString(pPr.xmlElement));
+            let c = cache.get(h);
+            if (c) {
+                return Object.assign({}, c);
+            }
+            for (let convertor of convertors) {
+                convertor.from(format, conv);
+            }
+            cache.set(h, conv);
+            return conv;
         }
-        return conv;
     }
     static toStyleObj(conv){
         let obj = {};

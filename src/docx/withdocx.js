@@ -28,13 +28,13 @@ const withDocx = (editor) => {
             return;
         }
         console.log('docx file', docx);
+        console.time('load')
         docxContext.loadDocx(docx);
+        console.timeEnd('load');
+        console.time('transform')
         let data = toEditorData(docxContext);
+        console.timeEnd('transform');
         console.log(data);
-        if(data.length===0) {
-            alert("no paragraphs found");
-            return;
-        }
         editor.children = data;
         editor.onChange();
 

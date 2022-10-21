@@ -9,7 +9,7 @@ class CellTrans {
         return {
             type: elementTypes.CELL,
             colSpan: cell.col_span,
-            rowSpan: cell.row_span,
+            rowSpan: 1, //cell.row_span, cost a lot of time, to be fixed
             children
         };
     }
@@ -66,7 +66,9 @@ class Ranges {
 class TableTrans {
     static from(table, options) {
         let children = [];
+        //console.time('rows_with_cells');
         let rows = table.rows.rows_with_cells;
+        //console.timeEnd('rows_with_cells');
         let colCount = 0;
         for(let row of rows){
             let rowElement = RowTrans.from(row.row_cells, options);

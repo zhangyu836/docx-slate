@@ -13,6 +13,7 @@ class StyleMap {
         this.cssToName = new Map();
         this.nameToFormatElem = new Map();
         this.idToFont = new Map();
+        this.idToFontName = new Map();
         this.linkToFont = new Map();
         this.nameToFont = new Map();
         this.nameToFontElem = new Map();
@@ -40,6 +41,7 @@ class StyleMap {
                 let fontConv = new FontConv(font, style);
                 this.nameToFont.set(name, fontConv);
                 this.idToFont.set(style_id, fontConv);
+                this.idToFontName.set(style_id, name);
                 if(fontConv.link) {
                     this.linkToFont.set(fontConv.link, fontConv);
                     let name = this.idToName.get(fontConv.link);
