@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/docx-slate/static/css/main.9a7c76b9.css",
-    "main.js": "/docx-slate/static/js/main.4a78f52c.js",
+    "main.css": "/docx-slate/static/css/main.95455f18.css",
+    "main.js": "/docx-slate/static/js/main.3d9e931d.js",
     "index.html": "/docx-slate/index.html",
-    "main.9a7c76b9.css.map": "/docx-slate/static/css/main.9a7c76b9.css.map",
-    "main.4a78f52c.js.map": "/docx-slate/static/js/main.4a78f52c.js.map"
+    "main.95455f18.css.map": "/docx-slate/static/css/main.95455f18.css.map",
+    "main.3d9e931d.js.map": "/docx-slate/static/js/main.3d9e931d.js.map"
   },
   "entrypoints": [
-    "static/css/main.9a7c76b9.css",
-    "static/js/main.4a78f52c.js"
+    "static/css/main.95455f18.css",
+    "static/js/main.3d9e931d.js"
   ]
 }
