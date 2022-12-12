@@ -19,7 +19,7 @@ import { withLinks } from './Link/linkUtilFunctions';
 //import RemoveLinkButton from './Link/RemoveLinkButton';
 import OpenFile from "./ToolBar/OpenFile";
 import SaveFile from "./ToolBar/SaveFile";
-import { Dropdown} from './ToolBar/ElementType';
+import { Dropdown} from './ToolBar/ParagraphStyle';
 import {withDocx} from "../docx/withdocx";
 import { withTables } from './Common/Table';
 import '../styles/editor.css';
@@ -51,13 +51,16 @@ const SlateEditor = () => {
 	);
 	let editorClass = 'rich-editor';
 	let pageStyle = {
-		width: '90%',
+		width: '97%',
+		fontFamily: 'Calibri',
+		backgroundColor: 'lightsteelblue',
+		padding: '27pt',
+	//}
+
+	//let editableStyle = {
 		display: 'flex',
 		flexFlow: 'column',
 		alignItems: 'center',
-		fontFamily: 'Calibri',
-		backgroundColor: 'lightsteelblue',
-		padding: '27pt'
 	}
 
 	return (
@@ -68,12 +71,16 @@ const SlateEditor = () => {
 				editor={editor}
 				value={value}
 				onChange={(value) => setValue(value)}>
-				<Toolbar style={{ width: '90%' }}>
+				<Toolbar style={{ width: '95%' }}>
 					{/* add all toolbar options */}
 					<Dropdown/>
-					<MarkButton format='bold' icon='format_bold' title='bold' />
 					<MarkButton
-						format='italic'
+						format='b'
+						icon='format_bold'
+						title='bold'
+					/>
+					<MarkButton
+						format='i'
 						icon='format_italic'
 						title='italic'
 					/>
@@ -131,8 +138,9 @@ const SlateEditor = () => {
 					<SaveFile/>
 				</Toolbar>
 				{/* the slate editor */}
-				<div className={editorClass} style={pageStyle}>
-					<Editable
+				{/**/}
+				<div className={editorClass} >
+					<Editable style={pageStyle}
 						renderElement={renderElement}
 						renderLeaf={renderLeaf}
 						placeholder='Enter some rich text…'
@@ -141,7 +149,6 @@ const SlateEditor = () => {
 					/>
 				</div>
 			</Slate>
-			<TagContainer />
 		</div>
 	);
 };
@@ -152,9 +159,9 @@ let paragraphs = [
 		type: 'paragraph',
 		children: [
 			{ text: 'This is editable ' },
-			{ text: 'rich', bold: true },
+			{ text: 'rich', b: true },
 			{ text: ' text, ' },
-			{ text: 'much', italic: true },
+			{ text: 'much', i: true },
 			{ text: ' better than a ' },
 			{ text: '<textarea>', code: true },
 			{ text: '!' },
@@ -166,7 +173,7 @@ let paragraphs = [
 			{
 				text: "Since it's rich text, you can do things like turn a selection of text ",
 			},
-			{ text: 'bold', bold: true },
+			{ text: 'bold', b: true },
 			{
 				text: ', or add a semantically rendered block quote in the middle of the page, like this:',
 			},

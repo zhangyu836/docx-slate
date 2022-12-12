@@ -1,5 +1,5 @@
 main.container {
-    width: 80vw;
+    width: 90vw;
     display: flex;
     flex-flow: column nowrap;
     margin: 0 auto;

@@ -13,7 +13,7 @@ const Toolbar = React.forwardRef(({ className, ...props }, ref) => (
 			'toolbar',
 			css`
 				position: sticky;
-				top: 1em;
+				top: 0em;
 				z-index: 77;
 				padding: 1em;
 				margin: 0;

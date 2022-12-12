@@ -1,6 +1,6 @@
 {
   "name": "docx-slate",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A simple slatejs-based docx editor for demonstration of docxjs.",
   "author": "Zhang Yu",
   "license": "MIT",
@@ -58,6 +58,7 @@
     "stream-browserify": "latest",
     "constants-browserify": "latest",
     "browserify-zlib": "latest",
+    "console-browserify": "latest",
     "original-fs": "latest",
     "gh-pages": "^4.0.0"
   },

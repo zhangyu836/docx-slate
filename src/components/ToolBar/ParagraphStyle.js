@@ -4,7 +4,7 @@ import {Editor, Element as SlateElement} from "slate";
 
 export const Dropdown = () => {
     const editor = useSlate();
-    let types = editor.getElementTypes();
+    let types = editor.getParagraphStyles();
     return (
         <select style={{ width: 170, height:33 }}
             value={activeBlockType(editor, types)}

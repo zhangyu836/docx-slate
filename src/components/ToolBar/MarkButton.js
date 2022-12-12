@@ -72,18 +72,17 @@ function getParMarks(editor){
 		);
 		if(matchText){
 			let styleName = matchText[0].style;
-			//console.log('match text', matchText[0])
 			let runMarks = editor.getFont(styleName)
-			marks = Object.assign({}, marks, runMarks)
+			marks = {...marks, ...runMarks}
 		}
 	}
-	return marks;
+	return marks
 }
 
 // check if mark button is toggled currently
 export const isMarkActive = (editor, format) => {
 	let runMarks = Editor.marks(editor);
 	let parMarks = getParMarks(editor);
-	let marks = Object.assign({}, parMarks, runMarks);
+	let marks = {...parMarks, ...runMarks}
 	return marks ? marks[format] === true : false;
 };

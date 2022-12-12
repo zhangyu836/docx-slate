@@ -1,8 +1,8 @@
 import React from 'react';
 import {Document} from 'docxyz';
-import {getStyleMap} from './stylemap';
-import {loadNumbering} from './numbering';
-import {getSectionMap} from './section';
+import {getStyleMap} from './style/styleMap';
+import {loadNumbering} from './style/numbering';
+import {getSectionMap} from './style/section';
 
 class DocxStore {
     constructor() {
@@ -16,7 +16,7 @@ class DocxStore {
         this.docx = docx;
         this.numberingMap = loadNumbering(docx);
         this.styleMap = getStyleMap(docx, this.numberingMap);
-        this.sectionMap = getSectionMap(docx);
+        this.sectionMap = getSectionMap(docx, this.styleMap);
         this.loaded = true;
     }
     loadDefaultDocx() {
@@ -31,9 +31,25 @@ class DocxStore {
         if(!this.loaded) return ;
         return this.styleMap.getFont(name);
     }
+    getFontConv(name) {
+        if(!this.loaded) return ;
+        return this.styleMap.getFontConv(name);
+    }
     getFormat(name) {
         if(!this.loaded) return ;
         return this.styleMap.getFormat(name);
+    }
+    getFormatStyle(name) {
+        if(!this.loaded) return ;
+        return this.styleMap.getFormatStyle(name);
+    }
+    getTableFormat(name) {
+        if(!this.loaded) return ;
+        return this.styleMap.getTableFormat(name);
+    }
+    getTableFormatStyle(name) {
+        if(!this.loaded) return ;
+        return this.styleMap.getTableFormatStyle(name);
     }
 }
 
@@ -46,12 +62,12 @@ class DocxContext {
     get docx() {
         return this.curStore.docx || this.dftStore.docx;
     }
-    get elementTypes(){
-        if(this._elementTypes) return this._elementTypes;
+    get paragraphStyles(){
+        if(this._paragraphStyles) return this._paragraphStyles;
         let dftStyleMap = this.dftStore.styleMap;
         let curStyleMap = this.curStore.styleMap;
-        this._elementTypes = dftStyleMap.getElementTypes(curStyleMap);
-        return this._elementTypes;
+        this._paragraphStyles = dftStyleMap.getParagraphStyles(curStyleMap);
+        return this._paragraphStyles;
     }
     get sectionMap(){
         return this.curStore.sectionMap || this.dftStore.sectionMap;
@@ -66,24 +82,40 @@ class DocxContext {
         let parFont = this.curStore.getFont(name) || this.dftStore.getFont(name);
         return parFont || {};
     }
+    getFontStyle(name) {
+        let fontStyle = this.curStore.getFontStyle(name) || this.dftStore.getFontStyle(name);
+        return fontStyle || {};
+    }
     getFormat(name) {
         let parFormat = this.curStore.getFormat(name) || this.dftStore.getFormat(name);
         return parFormat || {};
+    }
+    getFormatStyle(name) {
+        let formatStyle = this.curStore.getFormatStyle(name) || this.dftStore.getFormatStyle(name);
+        return formatStyle || {};
+    }
+    getTableFormat(name) {
+        let tableFormat = this.curStore.getTableFormat(name) || this.dftStore.getTableFormat(name);
+        return tableFormat || {};
+    }
+    getTableFormatStyle(name) {
+        let formatStyle = this.curStore.getTableFormatStyle(name) || this.dftStore.getTableFormatStyle(name);
+        return formatStyle || {};
     }
     getGlobalStyleObj(className){
         if(this._globalStyleObj) return this._globalStyleObj;
         let dftNumbering = this.dftStore.numberingMap;
         let curNumbering = this.curStore.numberingMap;
-        let dftStyleMap = this.dftStore.styleMap;
-        let curStyleMap = this.curStore.styleMap;
+        //let dftStyleMap = this.dftStore.styleMap;
+        //let curStyleMap = this.curStore.styleMap;
         let counterReset = dftNumbering.getCounterReset(curNumbering);
-        let dftFormat = dftStyleMap.getDefaultFormat(curStyleMap);
-        let dftFont = dftStyleMap.getDefaultFont(curStyleMap);
+        //let dftFormat = dftStyleMap.getDefaultFormat(curStyleMap);
+        //let dftFont = dftStyleMap.getDefaultFont(curStyleMap);
         let selector = `.${className}`;
         this._globalStyleObj = {
             [selector]: counterReset,
-            'p[data-slate-node=element]': dftFormat,
-            'span[data-slate-node=text]': dftFont
+            //'p[data-slate-node=element]': dftFormat,
+            //'span[data-slate-node=text]': dftFont
         };
         return this._globalStyleObj;
     }
@@ -96,7 +128,7 @@ class DocxContext {
     }
     loadDocx(docx) {
         this.curStore.loadDocx(docx);
-        this._elementTypes = null;
+        this._paragraphStyles = null;
         this._globalStyleObj = null;
     }
 }

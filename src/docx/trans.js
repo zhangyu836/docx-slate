@@ -14,7 +14,7 @@ function isColBr(paragraph) {
     }
 }
 function isSection(paragraph) {
-    let pPr = paragraph._p.pPr;
+    let pPr = paragraph._element.pPr;
     if(pPr && pPr.sectPr)
         return true;
 }
@@ -24,7 +24,7 @@ function addColBr(container) {
 }
 function addSection(container, sectPr) {
     let paragraph = container.add_paragraph();
-    let _paragraph = paragraph._p;
+    let _paragraph = paragraph._element;
     _paragraph.set_sectPr(sectPr);
 }
 class DocxTrans {
@@ -66,6 +66,7 @@ class DocxTrans {
         let column = slateSection.children[slateSection.colIndex];
         column.children = columnChildren;
         slateSections.push(slateSection);
+        //console.log(sectionMap);
         return slateSections;
     }
     static to(data, docx, options) {

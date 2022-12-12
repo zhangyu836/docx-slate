@@ -1,4 +1,5 @@
 import {css} from '@emotion/css';
+import {useSlate} from 'slate-react';
 
 function sectionStyle() {
     let style = {
@@ -10,8 +11,8 @@ function sectionStyle() {
         paddingRight: '90pt',
         paddingTop: '72pt',
         paddingBottom: '72pt',
-        minHeight: '792pt',
-        width: '612pt',
+        minHeight: '648pt',
+        width: '432pt',
         display: 'flex',
         flexFlow: 'row'
     };
@@ -20,25 +21,27 @@ function sectionStyle() {
 
 const Section = ({ attributes, children, element }) => {
     if (element) {
-        switch (element.type) {
-            case 'section' :
-                let style = element.style ? element.style : sectionStyle();
-                return (
-                    <div className={style} {...attributes}>
-                        {children}
-                    </div>
-                );
-            case 'column' :
-                let styleObj = {
-                    width: `${element.width}pt`,
-                    marginRight: `${element.space}pt`,
-                };
-                return (
-                    <div style={styleObj} {...attributes}>
-                        {children}
-                    </div>
-                );
-        }
+        let editor = useSlate();
+        let cssClass = editor.getSectionStyle(element.key);
+        if(!cssClass) cssClass = sectionStyle();
+        return (
+            <div className={cssClass} {...attributes}>
+                {children}
+            </div>
+        );
     }
 }
-export {Section};
+const Column = ({ attributes, children, element }) => {
+    if (element) {
+        let styleObj = {
+            width: `${element.width}pt`,
+            marginRight: `${element.space}pt`,
+        };
+        return (
+            <div style={styleObj} {...attributes}>
+                {children}
+            </div>
+        );
+    }
+}
+export {Section, Column};

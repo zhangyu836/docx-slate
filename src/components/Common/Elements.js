@@ -1,7 +1,7 @@
 import {useSlate} from 'slate-react';
-import {FormatConv} from '../../docx/formatConv';
-import {Table} from './Table';
-import {Section} from "./Section";
+import {FormatConv} from '../../docx/style/styleConv';
+import {Table, Row, Cell} from './Table';
+import {Section, Column} from "./Section";
 import { LinkComponent } from '../Link/LinkComponent';
 
 
@@ -10,21 +10,24 @@ const Elements = (props) => {
 	if (element) {
 		switch (element.type) {
 			case 'section' :
-			case 'column' :
 				return <Section {...props} />;
+			case 'column' :
+				return <Column {...props} />;
+			case 'table':
+				return <Table {...props} />;
+			case 'row':
+				return <Row {...props} />;
+			case 'cell':
+				return <Cell {...props} />;
 			case 'hyperlink' :
 				return <LinkComponent {...props} />;
-			case 'table':
-			case 'row':
-			case 'cell':
-				return <Table {...props} />;
 			case 'paragraph':
 				let editor = useSlate();
 				let styleName = element.style;
-				let format = editor.getFormat(styleName);
+				let formatStyle = editor.getFormatStyle(styleName);
 				let cls = editor.getCssClass(styleName)
 				let styleObj = FormatConv.toStyleObj(element);
-				let style = Object.assign({}, format, styleObj);
+				let style = {...formatStyle, ...styleObj};
 				return (
 					<p className={cls} style={style} {...attributes}>
 						{children}

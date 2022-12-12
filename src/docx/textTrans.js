@@ -1,24 +1,22 @@
 import {text} from "docxyz";
 import {elementTypes} from "./types";
-import {FontConv} from "./fontConv";
-import {FormatConv} from "./formatConv";
+import {FontConv, FormatConv} from "./style/styleConv";
 
 class RunTrans {
     static from(run, options) {
-        let leaf = FontConv.run2Leaf(run, options.parFontConv);
-        // save time
+        let textConv = FontConv.runToText(run, options.parFontConv);
         let styleId = run._element.style;
         if(styleId) {
             let {docxContext} = options;
-            leaf.style = docxContext.styleMap.idToFontName.get(styleId);
+            textConv.style = docxContext.styleMap.idToFontName(styleId);
         }
-        return leaf;
+        return textConv;
     }
-    static to(leaf, parent, options) {
+    static to(textConv, parent, options) {
         let run = parent.add_run();
-        FontConv.runFromLeaf(run, leaf)
-        if(leaf.style) {
-            run.style = leaf.style;
+        FontConv.runFromText(run, textConv)
+        if(textConv.style) {
+            run.style = textConv.style;
         }
     }
 }
@@ -27,8 +25,8 @@ class HyperlinkTrans {
     static from(hyperlink, options) {
         let children = [];
         for(let run of hyperlink.runs){
-            let leaf = RunTrans.from(run, options);
-            children.push(leaf);
+            let textConv = RunTrans.from(run, options);
+            children.push(textConv);
         }
         return {
             type: elementTypes.HYPERLINK,
@@ -48,42 +46,43 @@ class ParagraphTrans {
     static  from(paragraph, options) {
         let children = [];
         let parFmt = paragraph.paragraph_format;
-        let element = FormatConv.fromFormat(parFmt);
+        let parConv = FormatConv.fromStyle(parFmt);
         // save time
-        let styleId = paragraph._p.style;
+        let styleId = paragraph._element.style;
         if(!styleId) {
-            element.style = 'Normal';
+            parConv.style = 'Normal';
         } else {
             let {docxContext} = options;
-            element.style = docxContext.styleMap.idToName.get(styleId);
+            parConv.style = docxContext.styleMap.idToFormatName(styleId);
         }
-        element.type = elementTypes.PARAGRAPH;
-        let parFontConv = parFmt.font ? FontConv.fromFont(parFmt.font) : null;
+        parConv.type = elementTypes.PARAGRAPH;
+        let parFont = parFmt.font;
+        let parFontConv = parFont ? FontConv.fromStyle(parFont) : null;
         options.parFontConv = parFontConv;
         for(let child of paragraph.content) {
             if(child instanceof text.Run) {
-                let leaf = RunTrans.from(child, options);
-                children.push(leaf);
+                let textConv = RunTrans.from(child, options);
+                children.push(textConv);
             } else {
                 let hyperlink = HyperlinkTrans.from(child, options);
                 children.push(hyperlink);
             }
         }
         if (children.length===0){
-            let leaf = Object.assign({text:""}, parFontConv);
-            children.push(leaf);
+            let textConv = {text:"", ...parFontConv};
+            children.push(textConv);
         }
-        element.children = children;
-        return element;
+        parConv.children = children;
+        return parConv;
     }
-    static to(element, container, options) {
+    static to(parConv, container, options) {
         let {docxContext} = options;
         let paragraph = container.add_paragraph();
-        let styleName = element.style ? element.style : 'Normal';
+        let styleName = parConv.style ? parConv.style : 'Normal';
         docxContext.hasOrCloneStyle(styleName);
         paragraph.style = styleName;
-        FormatConv.toFormat(paragraph.paragraph_format, element);
-        for(let child of element.children){
+        FormatConv.toStyle(paragraph, parConv);
+        for(let child of parConv.children){
             if(child.type===elementTypes.HYPERLINK) {
                 HyperlinkTrans.to(child, paragraph, options);
             } else {

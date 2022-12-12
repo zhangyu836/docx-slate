@@ -15,20 +15,20 @@ class AbstractNum {
     }
     get styleObj(){
         let counter = this.counterName;
-        let obj = {
-            display: "list-item",
-            listStylePosition: "inside",
-            listStyleType: 'none'
-        }
-        if (this.level > 0) {
-            obj.counterReset = counter;
-        }
         let before = {
             content: this.content,
             counterIncrement: counter
         }
         if(this.numFmt==="bullet") before.fontFamily = "Symbol";
-        obj["::before"] = before;
+        let obj = {
+            display: "list-item",
+            listStylePosition: "inside",
+            listStyleType: 'none',
+            "::before": before
+        }
+        if (this.level > 0) {
+            obj.counterReset = counter;
+        }
         return obj;
     }
 }
@@ -79,7 +79,7 @@ function loadNumbering(docx){
     let numberingElem;
     let numberingMap = new NumberingMap();
     try{
-        numberingElem = docx.part.numbering_part.element;
+        numberingElem = docx.part.numbering_part._element;
     } catch (e) {
         return numberingMap;
     }
